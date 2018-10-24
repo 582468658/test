@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+     <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>添加笔记</title>
+  <link rel="stylesheet" href="../static/layui/css/layui.css">
+  <script type="text/javascript" src="../static/layui/layui.js"></script>
+  <script type="text/javascript" src="../static/jquery-3.3.1.js"></script>
+  <script type="text/javascript" src="../static/js/common.js"></script>
+  <script type="text/javascript" src="../static/js/stub.js"></script>
+  <script type="text/javascript" src="../static/js/list.js"></script>
+  <script src="//at.alicdn.com/t/font_861119_8fh8138ux8o.js"></script>
+    <style type="text/css">
+    .icon {
+       width: 2em; height: 2em;
+       vertical-align: -0.3em;
+       fill: currentColor;
+       overflow: hidden;
+    }
+  </style>
+  <!-- symbol方式引用 end-->
+
+    <style type="text/css">
+    .breadcrumb {
+      padding: 8px 8px;
+      list-style: none;
+      border-radius: 4px;
+    }
+    .breadcrumb > li {
+      display: inline-block;
+    }
+    .breadcrumb > li.normal + li:before {
+      padding: 0 5px;
+      color: #353535;
+      content: "/";
+    }
+    .breadcrumb > li.userPad + li:before {
+      padding: 0 5px;
+      color: #353535;
+      content: "\003a";
+    }
+    .breadcrumb > .active {
+      color: #777;
+    }
+    .breadcrumb > li.userPad a {
+       color: #337ab7;
+       cursor:pointer;
+    }
+    .breadcrumb > li.normal a {
+       color: #337ab7;
+       cursor:pointer;
+    }
+    .breadcrumb > li.findPad a {
+       color: #353535;
+    }
+    </style>
+</head>
+<body onload="Init()" style="padding: 15px">
+<ol id="breadCrumb" class="breadcrumb"></ol>
+<button id="createFolder" class="layui-btn layui-btn-sm layui-btn-radius" lay-filter="demo1">新建文件夹</button>
+<button id="upload" class="layui-btn layui-btn-sm layui-btn-radius" lay-filter="demo1">上传文件</button>
+<div class="layui-inline" style="float:right">
+  <div class="layui-input-inline">
+    <input type="text" id="keyWord" placeholder="" autocomplete="off" class="layui-input">
+  </div>
+  <button id="find" class="layui-btn layui-btn-sm" lay-filter="demo1">查找</button>
+</div>
+<table id="table" lay-filter="table"></table>
+  <script>
+layui.use(['table','element'], function() {
+    var table = layui.table;
+    var element = layui.element;
+    //upload = layui.upload;
+
+    //监听行单击事件（双击事件为：rowDouble）
+    table.on('rowDouble(table)', function (obj) {
+        var file = obj.data;
+        //标注选中样式
+        obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
+        //判断是否为文件夹
+        if (file.type != 'folder') {
+            return;
+        }
+        GotoFile1(file);
+    });
+
+    table.on('tool(table)', function (obj) {
+        var data = obj.data;
+        if (obj.event === 'openPath') {
+            var parentFile = GetFile(data.parentId);
+            GotoFile(parentFile);
+            return;
+        }
+        if (obj.event === 'del') {
+            //判断是否有子节点
+            var arrayLeafFile = GetLeafFile(data);
+            if (arrayLeafFile != null) {
+                layer.alert("文件夹中还有文件，禁止删除！");
+                return;
+            }
+            //进行删除确认
+            layer.confirm('真的删除行么', function (index) {
+                layer.close(index);
+                layer.alert("已经发送后端进行删除");
+                obj.del();
+            });
+            return;
+        }
+        if (obj.event === 'downLoad') {
+            if (data.type == "folder") {
+                layer.alert("文件夹禁止下载！");
+                return;
+            }
+            layer.alert("已经请求后端进行下载");
+            $.ajax({
+                url: '/file_download/',
+                type: 'POST', //GET _POST["name"] yang
+                async: false,    //或false,是否异步
+                data: {
+                    name: data.name
+                },
+                timeout: 5000,    //超时时间
+                dataType: 'json',    //返回的数据格式：json/xml/html/script/jsonp/text
+                success: function (jsondata, textStatus, jqXHR) { //data:{code:int, msg:string, data:array}
+                    console.log(jsondata)
+                    console.log(textStatus)
+                    console.log(jqXHR)
+                    if (jsondata.code == 0) {
+                        console.log("pass:" + jsondata.msg);
+                    }
+                    else {
+                        console.log("erro:" + jsondata.msg);
+                    }
+                },
+                error: function (xhr, textStatus) {
+                    console.log('错误')
+                    console.log(xhr)
+                    console.log(textStatus)
+                }
+            });
+            //return;
+        }
+    });
+});
+
+layui.use('upload', function(){
+ var upload = layui.upload;
+var uploadInst = upload.render({
+    elem: '#upload'
+    ,url: '/upload_file/'//上传接口
+    ,method: 'POST'
+    ,accept: 'file'
+    ,before: function(obj){ //obj参数包含的信息，跟 choose回调完全一致，可参见上文。
+        console.log(1);
+        var len = window.stackBreadCrumb.length;
+        var lev = window.stackBreadCrumb[len-1].level+1;
+        var parentid = window.stackBreadCrumb[len-1].id;
+        //dataparent = JSON.stringify(dataparent);
+       this.data ={"parentid":parentid,"level":lev};
+       console.log(this.data);
+       layer.load(); //上传loading
+    }
+    ,done: function(res, index, upload){
+        layer.open({
+              title: '上传结果'
+              ,content: '上传成功！'
+             });
+         layer.closeAll('loading'); //关闭loading
+    }
+    ,error: function(index, upload){
+       layer.open({
+              title: '上传结果'
+              ,content: '上传失败！'
+             });
+        layer.closeAll('loading'); //关闭loading
+    }
+  });
+})
+
+function GotoFile(file)
+{
+    SetBreadCrumb(file);
+    ShowBreadCrumb();
+
+    SetVisiableFile(file);
+    ShowVisiableFile(file)
+}
+function GotoFile1(file)
+{
+    SetBreadCrumb1(file);
+    ShowBreadCrumb();
+
+    SetVisiableFile(file);
+    ShowVisiableFile(file)
+}
+
+function ShowIcon(data)
+{
+    if(data.type == "folder")
+          {
+            return "<svg class='icon' aria-hidden='true'><use xlink:href='#layui-icon-extend-tubiaozhizuomoban'></use></svg>" + data.name;
+          }
+          if(data.type == "png" || data.type == "jpg")
+          {
+              return "<svg class='icon' aria-hidden='true'><use xlink:href='#layui-icon-extend-tupian'></use></svg>" + data.name;
+          }
+          return "<svg class='icon' aria-hidden='true'><use xlink:href='#layui-icon-extend-wenjianfile63'></use></svg>" + data.name;
+}
+
+function Init()
+{
+    Stub();
+	InitFile();
+	var file = new Object();
+	file.name =  getCookie_faker("userId");
+	file.id = "";
+	file.level = -1;
+	file.breadCrumb = "userPad";
+	GotoFile(file);
+}
+
+function Stub()
+{
+    setCookie("userId", "9978", 1);
+}
+
+function BE_InitFile()
+{
+  	$.ajax({
+		url:'./faker_getTree.json',
+		type:'POST', //GET _POST["name"] yang
+		async:false,    //或false,是否异步
+		data:{
+			name:'yang',
+			age:25
+		},
+		timeout:5000,    //超时时间
+		dataType:'json',    //返回的数据格式：json/xml/html/script/jsonp/text
+		success:function(jsondata,textStatus,jqXHR){ //data:{code:int, msg:string, data:array}
+			console.log(jsondata)
+			console.log(textStatus)
+			console.log(jqXHR)
+			if(jsondata.code==0)
+			{
+				window.files = jsondata.data;
+			}
+			else
+			{
+				console.log("erro:"+jsondata.msg);
+			}
+		},
+		error:function(xhr,textStatus){
+			console.log('错误')
+			console.log(xhr)
+			console.log(textStatus)
+		}
+	});
+}
+
+function SortFiles()
+{
+	window.files.sort(Compare);
+}
+
+function SortVisiableFile()
+{
+  window.visiableFiles.sort(Compare);
+}
+
+function Compare(file1, file2)
+{
+  if(file1.type == "folder" && file2.type != "folder")
+  {
+    return -1;
+  }
+  if(file1.type != "folder" && file2.type == "folder")
+  {
+    return 1;
+  }
+  if(file1.name>file2.name){
+    return 1;
+  }else{
+    if(file1.name<file2.name){
+      return -1;
+    }else{
+      return 0;
+    }
+  }
+}
+
+$("#createFolder").click(function()
+{
+  var length = window.stackBreadCrumb.length;
+  var parentFile = window.stackBreadCrumb[length -1];
+  var newFile = BE_CreateFolder(parentFile);
+  if(newFile)
+  {
+    //window.visiableFiles = new Array();
+    window.visiableFiles.push(newFile);
+    SortVisiableFile();
+    window.iles.push(newFile);//????
+    SortFiles();
+    ShowVisiableFile();
+
+  }
+});
+
+$("#find").click(function()
+{
+  var key = document.getElementById("keyWord").value;
+  document.getElementById("keyWord").value = "";
+  var file = new Object();
+  //sf start
+  file.name = '"'+key+'"中的搜索结果';
+  //sf end
+  file.id = "";
+  file.breadCrumb = "findPad";
+  GotoFile(file);
+});
+
+function BE_CreateFolder(parentFile) {
+    var newFile = new Object();
+    newFile.id = "";
+    newFile.parentId = parentFile.id;
+    newFile.level = parentFile.level + 1;
+    newFile.name = "untitle";
+    newFile.type = "folder";
+    newFile.modifyTime = "";
+    newFile.userId = getCookie("userId");
+    $.ajax({
+        url: '.../createFolder.py',
+        type: 'POST', //GET _POST["name"] yang
+        async: false,    //或false,是否异步
+        data: {
+            newFile: newFile
+        },
+        timeout: 5000,    //超时时间
+        dataType: 'json',    //返回的数据格式：json/xml/html/script/jsonp/text
+        success: function (jsondata, textStatus, jqXHR) { //data:{code:int, msg:string, data:array}
+            console.log(jsondata)
+            console.log(textStatus)
+            console.log(jqXHR)
+            if (jsondata.code == 0) {
+                return jsondata.data[0];
+            }
+            else {
+                layer.open({
+                    title: '错误！'
+                    , content: jsondata.msg
+                });
+
+                return false;
+            }
+
+        },
+        error: function (xhr, textStatus) {
+            console.log('错误');
+            console.log(xhr);
+            console.log(textStatus);
+            return false;
+        }
+    })
+}
+
+  </script>
+<script type="text/html" id="bar">
+  <a class="layui-btn layui-btn-xs" lay-event="downLoad">下载</a>
+  <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+<script type="text/html" id="findFileBar">
+  <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="openPath">打开文件位置</a>
+  <a class="layui-btn layui-btn-xs" lay-event="downLoad">下载</a>
+  <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+</body>
+</html>

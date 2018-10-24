@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>登录</title>
+  <link rel="stylesheet" href="../static/layui/css/layui.css">
+  <script type="text/javascript" src="../static/layui/layui.js"></script>
+  <script type="text/javascript" src="../static/layui/layui.all.js"></script>
+</head>
+<body bgcolor="#eeeeee" >
+    <!--头部-->
+    <div class="layui-header" >
+    <ul class="layui-nav layui-layot-left">
+        <li class="layui-nav-item">
+            <a class="layui-logo" href="/">
+                <img src="../static/images/logo.png" alt="layui">
+            </a>
+        </li>
+        <li class="layui-nav-item">
+            <a href="../addblog/"><i class="layui-icon layui-icon-survey" style="font-size: 25px;"></i> 添加笔记</a>
+        </li>
+        <li class="layui-nav-item">
+            <a href="../blogindex/"><i class="layui-icon layui-icon-list" style="font-size: 25px;"></i> 笔记</a>
+        </li>
+        <li class="layui-nav-item">
+            <a href="../case/case3.html"><i class="layui-icon layui-icon-chart-screen" style="font-size: 25px;"></i> 新闻</a>
+        </li>
+    </ul>
+
+     <ul class="layui-nav layui-layout-right">
+         <li class="layui-nav-item">
+             <a href="login.html"><i class="layui-icon layui-icon-friends" style="font-size: 25px;"></i> 登录</a>
+         </li>
+         <li class="layui-nav-item">
+             <a href="../register/">注册</a>
+         </li>
+     </ul>
+</div>
+<!--中部-->
+<div style="position: relative;padding: 20px 170px 20px">
+    <div class="layui-card" >
+        <div class="layui-card-body" >
+            <div class="layui-tab">
+                <ul class="layui-tab-title">
+                    <li class="layui-this">登录</li>
+                    <li><a href="../register/">注册</a></li>
+                </ul>
+                <div class="layui-form layui-tab-content" id="LAY_ucm" style="padding: 20px 0;">
+                    <div class="layui-tab-item layui-show">
+                        <div class="layui-form layui-form-pane">
+                            <form method="post" action=" ">
+                                <div class="layui-form-item">
+                                    <label for="L_gonghao" class="layui-form-label">工号</label>
+                                    <div class="layui-input-inline">
+                                        <input type="text" id="L_gonghao" name="gonghao" required lay-verify="gonghao" autocomplete="off" class="layui-input">
+                                    </div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <label for="L_pass" class="layui-form-label">密码</label>
+                                    <div class="layui-input-inline">
+                                        <input type="password" id="L_pass" name="pass" required lay-verify="required" autocomplete="off" class="layui-input">
+                                    </div>
+                                    <div class="layui-form-mid layui-word-aux">6到16个字符</div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <label for="L_vercode" class="layui-form-label">人类验证</label>
+                                    <div class="layui-input-inline">
+                                        <input type="text" id="L_vercode" name="vercode" required lay-verify="required" placeholder="请回答后面的问题" autocomplete="off" class="layui-input">
+                                    </div>
+                                    <div class="col-xs-5">
+                                        <img id="check_code_img" src="/create_code_img/" onclick="refresh_check_code(this)">
+                                        {# src是url路径，可得到验证码图片，点击时调用refresh_check_code#}
+                                    </div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <button class="layui-btn" lay-filter="*" lay-submit>立即登录</button>
+                                    <span style="color:red;">{{ error_msg }}</span>
+                                    <span style="padding-left:20px;">
+                                        <a href="../forget/">忘记密码？</a>
+                                    </span>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--底部-->
+<div class="layui-footer footer footer-doc" style="text-align:center;position: relative;padding: 25px 0 0">
+    <hr/>
+    <div class="layui-main">
+        <p style="word-spacing: 18px;color: gray;margin: 5px">
+            <a href="http://fly.layui.com/" target="_blank">DQA社区</a> 2018&copy;
+            <a href="http://www.appotronics.com//" target="_blank"> DQA.com出品</a>
+        </p>
+        <p style="word-spacing: 18px;color: gray;margin: 10px">
+            <a href="http://www.appotronics.com/" target="_blank">光峰光电</a>
+            <a href="http://www.appotronics.com/recruitment.html" target="_blank">加入我们</a>
+            <a href="http://www.cineappo.com/" target="_blank">中影光峰</a>
+        </p>
+    </div>
+</div>
+
+<script>
+
+//注意：选项卡 依赖 element 模块，否则无法进行功能性操作
+layui.use('element', function(){
+  var element = layui.element;
+
+  //…
+});
+
+function refresh_check_code(ths) {
+           ths.src += '?';
+{# src后面加问好会自动刷新验证码img的src#}
+         }
+
+</script>
+
+</body>
+
+
+

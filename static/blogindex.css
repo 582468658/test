@@ -1,0 +1,32 @@
+.fly-panel{margin-bottom: 0px; border-radius: 2px; background-color: #fff; box-shadow: 0 1px 2px 0 rgba(0,0,0,.05);}
+.fly-panel[pad20]{padding: 20px;}
+.fly-panel-main{padding: 10px 15px;}
+.fly-column{height: auto;}
+.fly-column ul{padding: 10px; font-size: 0;}
+.fly-column ul li{float: left; width: 33.33%; height: 36px; line-height: 36px; font-size: 14px; vertical-align: middle; text-align: center; box-sizing: border-box;}
+.fly-column-right{right: 10px;}
+.fly-column ul li.layui-this:after{display: none;}
+.fly-column-right{position: absolute; right: 0; top: 0;}
+.fly-column-right .layui-btn{vertical-align: initial;}
+.fly-search{display: inline-block; vertical-align: top; width: 50px; height: 50px; margin-right: 10px; text-align: center; cursor: pointer; font-size: 20px;}
+.fly-search .layui-icon{font-size: 20px;}
+.fly-search:hover{color: #5FB878;}
+.fly-panel-title{position: relative; height: 50px; line-height: 50px; padding: 0 15px; border-bottom: 1px dotted #E9E9E9; color: #333; border-radius: 2px 2px 0 0; font-size: 14px;}
+.fly-mid{display: inline-block; height: 10px; width: 1px; margin: 0 10px; vertical-align: middle; background-color: #e2e2e2;}
+.fly-filter-right{position: absolute; right: 10px; top: 0;}
+.fly-avatar{position: absolute; left: 15px; top: 15px;}
+.fly-avatar img{display: block; width: 45px; height: 45px; margin: 0; border-radius: 2px;}
+.fly-list-info{position: relative; font-size: 13px; color: #999;}
+.fly-list-info>*{padding-right: 15px;}
+.fly-list-info a[link]{color: #999;}
+.fly-list-info a[link]:hover{color: #5FB878;}
+.fly-list-info .icon-renzheng{position: relative; top: 1px; margin-right: 3px;}
+.fly-list-info .fly-badge-vip{position: relative; margin-left: 2px;}
+.fly-list-info{white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+.fly-list-kiss{color: #FF5722;}
+.fly-list-nums{position: absolute; right: 0; top: 0; padding-right: 0!important;}
+.fly-list-nums i{position: relative; padding: 0 3px 0 15px;}
+.fly-list-badge{position: absolute; right: 15px; top: 15px; font-size: 0;}
+.fly-list-badge .layui-badge{margin-left: 5px; border-radius: 2px; font-size: 12px;}
+.fly-badge-accept{height: 18px; line-height: 18px; padding: 0 5px !important; background-color: #5FB878; border-radius: 2px;}
+
